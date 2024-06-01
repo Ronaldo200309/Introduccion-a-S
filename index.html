@@ -4,8 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="Ronaldo Najera">
-   
- 
+    <meta name="Pablo Lucero">
+    <meta name="Anibal Trigueros">
+    <meta name="Mauricio Figueroa">
     <title>INFINITY NEWS</title>
     <link rel="stylesheet" href="styles.css">
 </head>
@@ -111,64 +112,83 @@
         section.scrollIntoView({ behavior: 'smooth' });
     }
 
-function cargarNoticiasTecnologia() {
-    const apiKey = 'f1effdaa4f834d76a2243cfb6886d28d';
-    const url = `http://newsapi.org/v2/top-headlines?country=mx&category=technology&apiKey=${apiKey}`;
-    
-    fetch(url)
-        .then(response => response.json())
-        .then(data => {
-            const noticiasContainer = document.getElementById('tecnologiaNoticias');
-            noticiasContainer.innerHTML = '';
+    async function cargarNoticiasTecnologicas() {
+    const subreddit = 'technology';
 
-            data.articles.forEach(article => {
-                const articleElement = document.createElement('div');
-                articleElement.classList.add('noticia');
+    try {
+        const response = await fetch(`https://www.reddit.com/r/${subreddit}/top.json?limit=5`);
 
-                const description = article.description ? article.description : 'Click en leer más para mayor información';
+        if (!response.ok) {
+            throw new Error('Error al cargar datos desde la API de Reddit');
+        }
 
-                articleElement.innerHTML = `
-                    <h3>${article.title}</h3>
-                    <p>${description}</p>
-                    <a href="${article.url}" target="_blank">Leer más</a>
-                `;
-                noticiasContainer.appendChild(articleElement);
-            });
-        })
-        .catch(error => console.error('Error al cargar noticias de tecnología desde News API:', error))
+        const data = await response.json();
+        const noticiasContainer = document.getElementById('tecnologiaNoticias');
+        noticiasContainer.innerHTML = '';
+
+        const posts = data.data.children;
+
+        posts.forEach(post => {
+            const articleElement = document.createElement('div');
+            articleElement.classList.add('noticia');
+
+            const title = post.data.title;
+            const description = post.data.selftext ? post.data.selftext : 'Click en leer más para mayor información';
+            const url = `https://www.reddit.com${post.data.permalink}`;
+
+            articleElement.innerHTML = `
+                <h3>${title}</h3>
+                <p>${description}</p>
+                <a href="${url}" target="_blank">Leer más</a>
+            `;
+            noticiasContainer.appendChild(articleElement);
+        });
+    } catch (error) {
+        console.error('Error al cargar datos desde la API de Reddit:', error);
+    }
 }
 
 window.addEventListener('load', () => {
-    cargarNoticiasTecnologia(); 
-    setInterval(cargarNoticiasTecnologia, 24 * 60 * 60 * 1000);
+    cargarNoticiasTecnologicas(); 
+    setInterval(cargarNoticiasTecnologicas, 24 * 60 * 60 * 1000); 
 });
 
-    function cargarNoticiasDeportivas() {
-    const apiKey = 'f1effdaa4f834d76a2243cfb6886d28d'; 
-    const url = `http://newsapi.org/v2/top-headlines?country=mx&category=sports&apiKey=${apiKey}`;
 
-    fetch(url)
-        .then(response => response.json())
-        .then(data => {
-            const noticiasContainer = document.getElementById('deportesNoticias');
-            noticiasContainer.innerHTML = '';
+async function cargarNoticiasDeportivas() {
+    const subreddit = 'sports'; 
 
-            data.articles.forEach(article => {
-                const articleElement = document.createElement('div');
-                articleElement.classList.add('noticia');
+    try {
+        // Obtener posts del subreddit
+        const response = await fetch(`https://www.reddit.com/r/${subreddit}/top.json?limit=5`);
 
-                // Verificar si hay descripción disponible
-                const description = article.description ? article.description : 'Click en leer más para mayor información';
+        if (!response.ok) {
+            throw new Error('Error al cargar datos desde la API de Reddit');
+        }
 
-                articleElement.innerHTML = `
-                    <h3>${article.title}</h3>
-                    <p>${description}</p>
-                    <a href="${article.url}" target="_blank">Leer más</a>
-                `;
-                noticiasContainer.appendChild(articleElement);
-            });
-        })
-        .catch(error => console.error('Error al cargar noticias deportivas desde News API:', error));
+        const data = await response.json();
+        const noticiasContainer = document.getElementById('deportesNoticias');
+        noticiasContainer.innerHTML = '';
+
+        const posts = data.data.children;
+
+        posts.forEach(post => {
+            const articleElement = document.createElement('div');
+            articleElement.classList.add('noticia');
+
+            const title = post.data.title;
+            const description = post.data.selftext ? post.data.selftext : 'Click en leer más para mayor información';
+            const url = `https://www.reddit.com${post.data.permalink}`;
+
+            articleElement.innerHTML = `
+                <h3>${title}</h3>
+                <p>${description}</p>
+                <a href="${url}" target="_blank">Leer más</a>
+            `;
+            noticiasContainer.appendChild(articleElement);
+        });
+    } catch (error) {
+        console.error('Error al cargar datos desde la API de Reddit:', error);
+    }
 }
 
 window.addEventListener('load', () => {
